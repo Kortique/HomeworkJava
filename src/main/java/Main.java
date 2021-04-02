@@ -6,7 +6,7 @@ public class Main {
         testVars();
         System.out.println("Задание 3: " + sumArgs(50,20,30,40));
         System.out.println("Задание 4: " + checkSumArgs(12,3));
-
+        checkNumber(-5);
     }
 
     public static void testVars() {
@@ -29,6 +29,14 @@ public class Main {
     public static boolean checkSumArgs(int a, int b) {
         int sum = a + b;
         return sum >= 10 && sum <= 20;
+    }
+
+    public static void checkNumber(int a) {
+        if (a>= 0) {
+            System.out.println("Задание 5: передали положительное число");
+        } else {
+            System.out.println("Задание 5: передали отрицательное число");
+        }
     }
 
 }
