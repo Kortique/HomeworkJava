@@ -1,6 +1,6 @@
 import java.util.Date;
 
-public class Main {
+public class HomeWork {
     public static void main(String[] args) {
         System.out.printf("Сегодня %tA %<te %<tB %<tY года.%nВыполняется ДЗ №1.%n%n", new Date());
         testVars();
