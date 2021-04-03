@@ -43,7 +43,7 @@ public class HomeWork {
     }
 
     public static boolean checkNumberBool(int a) {
-        return !(a >= 0);
+        return a < 0;
     }
 
     public static void sayHello(String name) {
