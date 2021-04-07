@@ -3,7 +3,7 @@ import java.util.Date;
 
 public class HomeWork {
     public static void main(String[] args) {
-        System.out.printf("Сегодня %tA %<te %<tB %<tY года.%nВыполняется ДЗ №2.%n%n", new Date());
+        System.out.printf("Сегодня %tA %<te %<tB %<tY года.%nВыполняется ДЗ №2...%n%n", new Date());
 
         //задание 1
         int[] arrayBinary = getRandomArray(6, 2);
