@@ -61,7 +61,7 @@ public class HomeWork4 {
 
     private static void setSize() {
 
-        boolean isInputValid = true;
+        boolean isInputValid;
         do {
             while (!in.hasNextInt()) {
                 in.next();
@@ -140,7 +140,6 @@ public class HomeWork4 {
                 break;
             }
         } while (true);
-
     }
 
     private static void humanTurn() {
@@ -177,6 +176,19 @@ public class HomeWork4 {
         MAP[rowNumber][colNumber] = DOT_HUMAN;
         x = rowNumber;
         y = colNumber;
+        turnsCount++;
+    }
+
+    private static void aiTurn() {
+        int rowNumber;
+        int colNumber;
+
+        System.out.println("\nХод ИИ");
+        do {
+            rowNumber = random.nextInt(SIZE);
+            colNumber = random.nextInt(SIZE);
+        } while (!isCellFree(rowNumber, colNumber));
+        MAP[rowNumber][colNumber] = DOT_AI;
         turnsCount++;
     }
 
@@ -225,14 +237,13 @@ public class HomeWork4 {
 
     private static boolean checkWin(char symbol) {
 
-        int difference = SIZE - LINE;
-
+        int indexOfLastTurn = x + y;
+        int indexOfReverseLastTurn = x + (SIZE - 1 - y);
         char[][] mapReverse = reverseArray();
-
         return checkRows(symbol) ||
                 checkColumns(symbol) ||
-                checkDiagonals(symbol, difference, MAP) ||
-                checkDiagonals(symbol, difference, mapReverse);
+                checkDiagonals(symbol, MAP, indexOfLastTurn) ||
+                checkDiagonals(symbol, mapReverse, indexOfReverseLastTurn);
     }
 
     private static char[][] reverseArray() {
@@ -246,51 +257,36 @@ public class HomeWork4 {
     }
 
     private static boolean checkRows(char symbol) {
+        numberOfRepeats = 0;
         for (int i = 0; i < SIZE; i++) {
             numberOfRepeats = MAP[x][i] == symbol ? numberOfRepeats + 1 : 0;
             if (numberOfRepeats >= LINE)
                 return true;
         }
-        numberOfRepeats = 0;
         return false;
     }
 
     private static boolean checkColumns(char symbol) {
+        numberOfRepeats = 0;
         for (int j = 0; j < SIZE; j++) {
             numberOfRepeats = MAP[j][y] == symbol ? numberOfRepeats + 1 : 0;
             if (numberOfRepeats >= LINE)
                 return true;
         }
-        numberOfRepeats = 0;
         return false;
     }
 
-    private static boolean checkDiagonals(char symbol, int difference, char[][] array) {
-        for (int n = -difference; n <= difference; n++) {
-            for (int i = 0; i < SIZE; i++) {
-                for (int j = 0; j < SIZE; j++) {
-                    if (i + j == SIZE - 1 - n)
-                        numberOfRepeats = array[i][j] == symbol ? numberOfRepeats + 1 : 0;
-                }
-                if (numberOfRepeats >= LINE)
-                    return true;
+    private static boolean checkDiagonals(char symbol, char[][] array, int indexOfLastTurn) {
+        numberOfRepeats = 0;
+        for (int i = 0; i < SIZE; i++) {
+            for (int j = 0; j < SIZE; j++) {
+                if (i + j == indexOfLastTurn)
+                    numberOfRepeats = array[i][j] == symbol ? numberOfRepeats + 1 : 0;
             }
+            if (numberOfRepeats >= LINE)
+                return true;
         }
-        numberOfRepeats = 0;
         return false;
-    }
-
-    private static void aiTurn() {
-        int rowNumber;
-        int colNumber;
-
-        System.out.println("\nХод ИИ");
-        do {
-            rowNumber = random.nextInt(SIZE);
-            colNumber = random.nextInt(SIZE);
-        } while (!isCellFree(rowNumber, colNumber));
-        MAP[rowNumber][colNumber] = DOT_AI;
-        turnsCount++;
     }
 
     private static void endGame() {
