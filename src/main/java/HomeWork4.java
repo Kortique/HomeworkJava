@@ -52,6 +52,12 @@ public class HomeWork4 {
         } while (false);
     }
 
+    private static void turningDebugger() {
+        System.out.println("Включить ловца ошибок? Введите 1");
+        if ("1".equals(in.next()))
+            debugger = true;
+    }
+
     private static void chooseBoardSize() {
 
         displayMessageOfGameCondition();
@@ -59,12 +65,6 @@ public class HomeWork4 {
         setSize();
 
         setLine();
-    }
-
-    private static void turningDebugger() {
-        System.out.println("Включить ловца ошибок? Введите 1");
-        if ("1".equals(in.next()))
-            debugger = true;
     }
 
     private static void displayMessageOfGameCondition() {
@@ -111,12 +111,12 @@ public class HomeWork4 {
     }
 
     private static void printBoard() {
-        printHeaderMap();
+        printHeaderBoard();
 
         printBodyBoard();
     }
 
-    private static void printHeaderMap() {
+    private static void printHeaderBoard() {
         System.out.print(HEADER_FIRST_SYMBOL + EMPTY);
         for (int i = 0; i < SIZE; i++) {
             printBoardNumber(i);
@@ -196,6 +196,29 @@ public class HomeWork4 {
         y = colNumber;
     }
 
+    private static void findBestAiTurn() {
+        int bestScore = Integer.MIN_VALUE;
+
+        for (int i = 0; i < SIZE; i++) {
+            for (int j = 0; j < SIZE; j++) {
+                if (BOARD[i][j] == DOT_EMPTY) {
+                    BOARD[i][j] = DOT_AI;
+                    lastSymbol = DOT_AI;
+                    int depth = 0;
+                    int turnScore = minimax(i, j, DOT_HUMAN, 0);
+                    if (debugger)
+                        printLogicAi(turnScore, lastSymbol, i, j, depth);
+                    BOARD[i][j] = DOT_EMPTY;
+                    if (turnScore > bestScore) {
+                        xAI = i;
+                        yAI = j;
+                        bestScore = turnScore;
+                    }
+                }
+            }
+        }
+    }
+
     private static int minimax(int indexRow, int indexCol, char symbol, int depth) {
         int best = (symbol == DOT_AI) ? Integer.MIN_VALUE : Integer.MAX_VALUE;
         if (depth > countDepth)
@@ -219,29 +242,6 @@ public class HomeWork4 {
             }
         }
         return best;
-    }
-
-    private static void findBestAiTurn() {
-        int bestScore = Integer.MIN_VALUE;
-
-        for (int i = 0; i < SIZE; i++) {
-            for (int j = 0; j < SIZE; j++) {
-                if (BOARD[i][j] == DOT_EMPTY) {
-                    BOARD[i][j] = DOT_AI;
-                    lastSymbol = DOT_AI;
-                    int depth = 0;
-                    int turnScore = minimax(i, j, DOT_HUMAN, 0);
-                    if (debugger)
-                        printLogicAi(turnScore, lastSymbol, i, j, depth);
-                    BOARD[i][j] = DOT_EMPTY;
-                    if (turnScore > bestScore) {
-                        xAI = i;
-                        yAI = j;
-                        bestScore = turnScore;
-                    }
-                }
-            }
-        }
     }
 
     private static void printLogicAi(int score, char symbol, int x, int y, int depth) {
