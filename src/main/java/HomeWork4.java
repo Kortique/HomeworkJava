@@ -1,19 +1,24 @@
 
-import java.util.Random;
 import java.util.Scanner;
 
 public class HomeWork4 {
 
     static final Scanner in = new Scanner(System.in);
-    static final Random random = new Random();
 
-    static char[][] MAP;
-    static int turnsCount;
+    static char[][] BOARD;
     static int numberOfRepeats = 0;
     static int SIZE;
     static int LINE;
     static int x;
     static int y;
+    static int count = 1;
+
+    static int xAI;
+    static int yAI;
+    static int score;
+    static int countDepth = 2;
+    static boolean mark;
+    static boolean debugger = false;
 
     private static final String EMPTY = " ";
     private static final String HEADER_FIRST_SYMBOL = "♥";
@@ -21,6 +26,8 @@ public class HomeWork4 {
     static final char DOT_EMPTY = '•';
     static final char DOT_HUMAN = 'X';
     static final char DOT_AI = 'O';
+    static char lastSymbol;
+
 
     public static void main(String[] args) {
 
@@ -29,12 +36,14 @@ public class HomeWork4 {
 
     private static void turnGame() {
 
-        chooseMapSize();
+        turningDebugger();
+
+        chooseBoardSize();
 
         do {
-            initMap();
+            initBoard();
 
-            printMap();
+            printBoard();
 
             playGame();
 
@@ -43,15 +52,19 @@ public class HomeWork4 {
         } while (false);
     }
 
-    private static void chooseMapSize() {
-
-        turnsCount = 0;
+    private static void chooseBoardSize() {
 
         displayMessageOfGameCondition();
 
         setSize();
 
         setLine();
+    }
+
+    private static void turningDebugger() {
+        System.out.println("Включить ловца ошибок? Введите 1");
+        if ("1".equals(in.next()))
+            debugger = true;
     }
 
     private static void displayMessageOfGameCondition() {
@@ -88,54 +101,59 @@ public class HomeWork4 {
             LINE = 5;
     }
 
-    private static void initMap() {
-        MAP = new char[SIZE][SIZE];
+    private static void initBoard() {
+        BOARD = new char[SIZE][SIZE];
         for (int i = 0; i < SIZE; i++) {
             for (int j = 0; j < SIZE; j++) {
-                MAP[i][j] = DOT_EMPTY;
+                BOARD[i][j] = DOT_EMPTY;
             }
         }
     }
 
-    private static void printMap() {
+    private static void printBoard() {
         printHeaderMap();
 
-        printBodyMap();
+        printBodyBoard();
     }
 
     private static void printHeaderMap() {
         System.out.print(HEADER_FIRST_SYMBOL + EMPTY);
         for (int i = 0; i < SIZE; i++) {
-            printMapNumber(i);
+            printBoardNumber(i);
         }
         System.out.println();
     }
 
-    private static void printBodyMap() {
+    private static void printBodyBoard() {
         for (int i = 0; i < SIZE; i++) {
-            printMapNumber(i);
+            printBoardNumber(i);
             for (int j = 0; j < SIZE; j++) {
-                System.out.print(MAP[i][j] + EMPTY);
+                System.out.print(BOARD[i][j] + EMPTY);
             }
             System.out.println();
         }
     }
 
-    private static void printMapNumber(int i) {
+    private static void printBoardNumber(int i) {
         System.out.print(i + 1 + EMPTY);
     }
 
     private static void playGame() {
-
         do {
+            count = 1;
+            mark = true;
             humanTurn();
-            printMap();
+            printBoard();
+            lastSymbol = DOT_HUMAN;
             if (checkEnd(DOT_HUMAN)) {
                 break;
             }
 
-            aiTurn();
-            printMap();
+            mark = false;
+            findBestAiTurn();
+            doTurn();
+            printBoard();
+            lastSymbol = DOT_AI;
             if (checkEnd(DOT_AI)) {
                 break;
             }
@@ -173,23 +191,73 @@ public class HomeWork4 {
             }
         } while (!(isInputValid && isHumanTurnValid(rowNumber, colNumber)));
 
-        MAP[rowNumber][colNumber] = DOT_HUMAN;
+        BOARD[rowNumber][colNumber] = DOT_HUMAN;
         x = rowNumber;
         y = colNumber;
-        turnsCount++;
     }
 
-    private static void aiTurn() {
-        int rowNumber;
-        int colNumber;
+    private static int minimax(int indexRow, int indexCol, char symbol, int depth) {
+        int best = (symbol == DOT_AI) ? Integer.MIN_VALUE : Integer.MAX_VALUE;
+        if (depth > countDepth)
+            return best;
+        x = indexRow;
+        y = indexCol;
+        if (checkEnd(symbol))
+            return score;
 
+        for (int i = 0; i < SIZE; i++) {
+            for (int j = 0; j < SIZE; j++) {
+                if (BOARD[i][j] == DOT_EMPTY) {
+                    BOARD[i][j] = symbol;
+                    lastSymbol = symbol;
+                    best = (symbol == DOT_AI) ? Math.max(score, minimax(i, j, DOT_HUMAN, depth + 1)) :
+                            Math.min(score, minimax(i, j, DOT_AI, depth + 1));
+                    if (debugger)
+                        printLogicAi(best, lastSymbol, i, j, depth);
+                    BOARD[i][j] = DOT_EMPTY;
+                }
+            }
+        }
+        return best;
+    }
+
+    private static void findBestAiTurn() {
+        int bestScore = Integer.MIN_VALUE;
+
+        for (int i = 0; i < SIZE; i++) {
+            for (int j = 0; j < SIZE; j++) {
+                if (BOARD[i][j] == DOT_EMPTY) {
+                    BOARD[i][j] = DOT_AI;
+                    lastSymbol = DOT_AI;
+                    int depth = 0;
+                    int turnScore = minimax(i, j, DOT_HUMAN, 0);
+                    if (debugger)
+                        printLogicAi(turnScore, lastSymbol, i, j, depth);
+                    BOARD[i][j] = DOT_EMPTY;
+                    if (turnScore > bestScore) {
+                        xAI = i;
+                        yAI = j;
+                        bestScore = turnScore;
+                    }
+                }
+            }
+        }
+    }
+
+    private static void printLogicAi(int score, char symbol, int x, int y, int depth) {
+        System.out.printf("%d ход ИИ, цена которого %d\n", count, score);
+        System.out.printf(depth < 1 ? "Глубина 0\n" : "Глубина %s\n", depth);
+        System.out.printf("Это ход %c c координатами %s и %s\n", symbol, x, y);
+        printBoard();
+        System.out.println();
+        count++;
+    }
+
+    private static void doTurn() {
         System.out.println("\nХод ИИ");
-        do {
-            rowNumber = random.nextInt(SIZE);
-            colNumber = random.nextInt(SIZE);
-        } while (!isCellFree(rowNumber, colNumber));
-        MAP[rowNumber][colNumber] = DOT_AI;
-        turnsCount++;
+        BOARD[xAI][yAI] = DOT_AI;
+        x = xAI;
+        y = yAI;
     }
 
     private static boolean isHumanTurnValid(int rowNumber, int colNumber) {
@@ -209,30 +277,41 @@ public class HomeWork4 {
     }
 
     private static boolean isCellFree(int rowNumber, int colNumber) {
-        return MAP[rowNumber][colNumber] == DOT_EMPTY;
+        return BOARD[rowNumber][colNumber] == DOT_EMPTY;
     }
-
 
     private static boolean checkEnd(char symbol) {
 
-        if (checkWin(symbol)) {
-            if (symbol == DOT_HUMAN) {
-                System.out.println("Ура! Вы победили!");
+        if (checkWin(lastSymbol)) {
+            if (lastSymbol == DOT_HUMAN) {
+                if (mark)
+                    System.out.println("Ура! Вы победили!");
+                score = -10;
             } else {
-                System.out.println("Восстание близко... ИИ победил");
+                if (mark)
+                    System.out.println("Восстание близко... ИИ победил");
+                score = 10;
             }
             return true;
         }
-        if (isMapFull()) {
-            System.out.println("Ничья!");
+        if (isBoardFull()) {
+            if (mark)
+                System.out.println("Ничья!");
+            score = 0;
             return true;
         }
-
         return false;
     }
 
-    private static boolean isMapFull() {
-        return turnsCount == SIZE * SIZE;
+    private static boolean isBoardFull() {
+        for (int i = 0; i < SIZE; i++) {
+            for (int j = 0; j < SIZE; j++) {
+                if (BOARD[i][j] == DOT_EMPTY) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
     private static boolean checkWin(char symbol) {
@@ -240,17 +319,17 @@ public class HomeWork4 {
         int indexOfLastTurn = x + y;
         int indexOfReverseLastTurn = x + (SIZE - 1 - y);
         char[][] mapReverse = reverseArray();
-        return checkRows(symbol) ||
-                checkColumns(symbol) ||
-                checkDiagonals(symbol, MAP, indexOfLastTurn) ||
-                checkDiagonals(symbol, mapReverse, indexOfReverseLastTurn);
+        return checkRows(lastSymbol) ||
+                checkColumns(lastSymbol) ||
+                checkDiagonals(lastSymbol, BOARD, indexOfLastTurn) ||
+                checkDiagonals(lastSymbol, mapReverse, indexOfReverseLastTurn);
     }
 
     private static char[][] reverseArray() {
         char[][] mapReverse = new char[SIZE][SIZE];
         for (int i = 0; i < SIZE; i++) {
             for (int j = 0; j < SIZE; j++) {
-                mapReverse[i][j] = MAP[i][SIZE - j - 1];
+                mapReverse[i][j] = BOARD[i][SIZE - j - 1];
             }
         }
         return mapReverse;
@@ -259,7 +338,7 @@ public class HomeWork4 {
     private static boolean checkRows(char symbol) {
         numberOfRepeats = 0;
         for (int i = 0; i < SIZE; i++) {
-            numberOfRepeats = MAP[x][i] == symbol ? numberOfRepeats + 1 : 0;
+            numberOfRepeats = BOARD[x][i] == symbol ? numberOfRepeats + 1 : 0;
             if (numberOfRepeats >= LINE)
                 return true;
         }
@@ -269,7 +348,7 @@ public class HomeWork4 {
     private static boolean checkColumns(char symbol) {
         numberOfRepeats = 0;
         for (int j = 0; j < SIZE; j++) {
-            numberOfRepeats = MAP[j][y] == symbol ? numberOfRepeats + 1 : 0;
+            numberOfRepeats = BOARD[j][y] == symbol ? numberOfRepeats + 1 : 0;
             if (numberOfRepeats >= LINE)
                 return true;
         }
