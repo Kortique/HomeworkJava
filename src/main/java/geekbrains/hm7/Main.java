@@ -101,8 +101,6 @@ public class Main {
             System.out.println(value.getSatiety() ? "и остался сытым;" : "и остался голодным;");
         }
     }
-
-    StringBuilder a = new StringBuilder();
 }
 
 
