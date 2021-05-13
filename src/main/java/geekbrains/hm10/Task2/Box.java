@@ -44,7 +44,7 @@ public class Box<E extends Fruit> {
         float weightBox = 0;
         if (currentSize == 0) return weightBox;
         for (int i = 0; i < currentSize; i++) {
-            weightBox += fruit[i].getWEIGHT();
+            weightBox += fruit[i].getWeight();
         }
         return weightBox;
     }
@@ -53,7 +53,7 @@ public class Box<E extends Fruit> {
         return this.getWeightBox() == anotherBox.getWeightBox();
     }
 
-    public void transferFrom(Box<E> anotherBox) {
+    public void transferFrom(Box<? extends Fruit> anotherBox) {
         int freeCapacity = fruit.length - currentSize;
         int count = 0;
         if (freeCapacity <= 0) {
@@ -67,14 +67,14 @@ public class Box<E extends Fruit> {
                     break;
                 } else {
                     count++;
-                    this.add(anotherBox.fruit[i]);
+                    this.add((E) anotherBox.fruit[i]);
                     anotherBox.fruit[i] = null;
                     anotherBox.currentSize--;
                 }
             }
             System.out.println("\nПеренесено " + count + " ед.");
         }
-        organizeBox(anotherBox); //смещение объектов к началу массива
+        organizeBox((Box<E>) anotherBox); //смещение объектов к началу массива
     }
 
     private void organizeBox(Box<E> anotherBox) {

@@ -6,5 +6,4 @@ public class Apple extends Fruit {
         super(1f, "[яблоко]");
     }
 
-
 }
