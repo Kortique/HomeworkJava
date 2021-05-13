@@ -74,7 +74,7 @@ public class Box<E extends Fruit> {
             }
             System.out.println("\nПеренесено " + count + " ед.");
         }
-        organizeBox((Box<E>) anotherBox); //смещение объектов к началу массива
+        organizeBox((Box) anotherBox); //смещение объектов к началу массива
     }
 
     private void organizeBox(Box<E> anotherBox) {

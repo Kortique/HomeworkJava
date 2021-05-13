@@ -4,9 +4,9 @@ public class Main {
 
     public static void main(String[] args) {
 
-        Apple apple = new Apple();
-        Orange orange = new Orange();
-        WormyApple wormyApple = new WormyApple();
+        Apple apple = new Apple(1f, "[яблоко]");
+        Orange orange = new Orange(1.5f, "[апельсин]");
+        WormyApple wormyApple = new WormyApple(4f, "[червивое яблоко]");
 
         Box<Apple> box1 = new Box();
         Box<Orange> box2 = new Box();
@@ -20,8 +20,8 @@ public class Main {
         box4.add(apple, 10);
         box5.add(wormyApple, 5);
 
-        System.out.println(box2.getWeightBox());
-        System.out.println(box1.compareWith(box2));
+        System.out.println(box5.getWeightBox());
+        System.out.println(box5.compareWith(box2));
         box2.display();
 
         box1.transferFrom(box3);
