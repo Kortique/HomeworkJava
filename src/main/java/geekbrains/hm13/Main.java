@@ -26,6 +26,7 @@ public class Main {
         } catch (InterruptedException | BrokenBarrierException e) {
             e.printStackTrace();
         }
+
         System.out.println("ПОБЕДИТЕЛЬ  - " + Car.getWinner() + "!!!");
     }
 }
